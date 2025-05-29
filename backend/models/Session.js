@@ -3,7 +3,7 @@ const fileSchema = require('./File');
 
 const sessionSchema = new mongoose.Schema({
     created_at: { type: Date, default: Date.now },
-    expires_at: { type: Date, required: true, index: { expires: 0 } },
+    expires_at: { type: Date, required: true, expires: 0 },
     files: { type: [fileSchema] }
 });
 
