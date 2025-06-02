@@ -9,7 +9,7 @@ const UploadButton = () => {
 	const APPWRITE_BUCKET_ID: string = '68387289001b750812f7';
 
 	// Appwrite connection
-	const client = new Client()
+	const client: Client = new Client()
 		.setEndpoint(APPWRITE_ENDPOINT)
 		.setProject(APPWRITE_PROJECT_ID);
 
@@ -27,8 +27,9 @@ const UploadButton = () => {
 
 		try {
 			const response = await storage.createFile(APPWRITE_BUCKET_ID, ID.unique(), file);
+			console.log('Response: ', response);
 			const fileID: string = response.$id;
-			const downloadURL = storage.getFileView(APPWRITE_BUCKET_ID, fileID);
+			const downloadURL: string = storage.getFileView(APPWRITE_BUCKET_ID, fileID);
 			console.log(downloadURL);
 
 			console.log('Upload complete: ', response);
