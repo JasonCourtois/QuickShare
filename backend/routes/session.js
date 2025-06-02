@@ -79,6 +79,26 @@ router.get('/download/:id/:name', async (req, res, next) => {
     }
 });
 
+router.get('/files/:id', async (req, res, next) => {
+    try {
+         const { id } = req.params;
+
+        if (isInvalidId(id)) {
+            return res.status(400).json({ error: 'id must be a string thats 5 characters long' });        
+        }
+
+        const sessionData = await Session.findOne({ id: id });
+        console.log(sessionData);
+        if (!sessionData || !sessionData.files) {
+            return res.status(404).json({error: `No session with id ${id} found`})
+        }
+
+        res.status(200).json({ files: sessionData.files});
+    } catch (error) {
+        next(error);
+    }
+});
+
 /* Add a file to a session
     - id: 5 character string in dynamic route to specify id
     - files (in body of request - must be non empty): Array of files with the following [
