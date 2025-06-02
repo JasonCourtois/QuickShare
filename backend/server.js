@@ -16,7 +16,7 @@ app.use(express.json());
 const testRoute = require('./routes/testing');
 app.use('/api/test', testRoute);
 const sessionRoute = require('./routes/session');
-app.use('/api/session', sessionRoute);
+app.use('/api/', sessionRoute);
 
 // MongoDB options - Use stable API version 1 and warn about use of deprecated features
 const mongooseOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true}};
