@@ -20,8 +20,7 @@ router.post('/create', async (req, res, next) => {
         if (isInvalidNumber(expireInMinutes)) {
             return res.status(400).json({ error: 'expireInMinutes required and must be a number '});
         }
-        
-        console.log(files);
+
         if (files) {
             for (const file of files) {
                 if (isInvalidPath(file.cdn_url)) {
@@ -31,8 +30,7 @@ router.post('/create', async (req, res, next) => {
                 if (isInvalidPath(file.name)) {
                     return res.status(400).json({ error: 'Each file must have name as a non-empty string' });
                 }
-
-                console.log(file.id.length)
+                
                 if (isInvalidFileId(file.id)) {
                     console.log("invalid");
                     return res.status(400).json({ error: 'Each file must have a 20 character id '});
@@ -51,7 +49,7 @@ router.post('/create', async (req, res, next) => {
             id: id,
             expires_at: expiresAt
         })
-            
+
         res.status(201).json({ id: session.id });
     } catch (error) {
         next(error);
@@ -60,7 +58,7 @@ router.post('/create', async (req, res, next) => {
 
 /* Gets the cdn_url and AppWrite ID for a specified file within a session
     - id: 5 character string defining the session id
-    - name: non zero string defining the requested file name
+    - name: non-zero string defining the requested file name
 */
 router.get('/download/:id/:name', async (req, res, next) => {
     try {
@@ -68,7 +66,7 @@ router.get('/download/:id/:name', async (req, res, next) => {
        
         // Validation
         if (isInvalidSessionId(id)) {
-            return res.status(400).json({ error: 'id must be a string thats 5 characters long' });
+            return res.status(400).json({ error: "id must be a string that's 5 characters long" });
         }
 
         if (isInvalidPath(name)) {
@@ -98,7 +96,7 @@ router.get('/files/:id', async (req, res, next) => {
          const { id } = req.params;
 
         if (isInvalidSessionId(id)) {
-            return res.status(400).json({ error: 'id must be a string thats 5 characters long' });        
+            return res.status(400).json({ error: "id must be a string that's 5 characters long" });
         }
 
         const sessionData = await Session.findOne({ id: id });
@@ -115,7 +113,7 @@ router.get('/files/:id', async (req, res, next) => {
 
 /* Add a file to a session
     - id: 5 character string in dynamic route to specify id
-    - files (in body of request - must be non empty): Array of files with the following [
+    - files (in body of request - must be non-empty): Array of files with the following [
             cdn_url: String
             name: String
             id: String (20 characters)
@@ -128,7 +126,7 @@ router.post('/upload/:id', async (req, res, next) => {
 
         // Input validation
         if (isInvalidSessionId(id)) {
-            return res.status(400).json({ error: 'id must be a string thats 5 characters long' });
+            return res.status(400).json({ error: "id must be a string that's 5 characters long" });
         }
     
         if (isInvalidArray(files) || files.length === 0) {
@@ -165,7 +163,7 @@ router.post('/upload/:id', async (req, res, next) => {
             }
 
             sessionData.files.push(newFile);
-        };
+        }
 
         // Attempt to save data
         await sessionData.save();

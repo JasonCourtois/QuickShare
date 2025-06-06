@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Client, Storage, ID} from "appwrite";
+import {Account, Client, Storage, Permission, Role, ID} from "appwrite";
 
 const UploadButton = () => {
 	const [file, setFile] = useState<File | null>(null);
@@ -26,7 +26,18 @@ const UploadButton = () => {
 		if (!file) return alert('Please select a file!');
 
 		try {
-			const response = await storage.createFile(APPWRITE_BUCKET_ID, ID.unique(), file);
+			const account = new Account(client);
+			await account.createAnonymousSession();
+			const user = await account.get();
+
+			const response = await storage.createFile(
+				APPWRITE_BUCKET_ID,
+				ID.unique(),
+				file,
+				[
+					Permission.read(Role.user(user.$id)),
+					Permission.write(Role.user(user.$id)),
+				]);
 			console.log('Response: ', response);
 			const fileID: string = response.$id;
 			const downloadURL: string = storage.getFileView(APPWRITE_BUCKET_ID, fileID);

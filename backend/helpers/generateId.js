@@ -1,7 +1,7 @@
 const { customAlphabet } = require('nanoid');
 const Session = require('../models/Session');
 
-// Generates a random 5 digit code used for session id.
+// Generates a random 5-digit code used for session id.
 const generateId = async () => {
     const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const generateCode = customAlphabet(alphabet, 5);

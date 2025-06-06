@@ -3,6 +3,8 @@ import {createPortal} from 'react-dom';
 import {getFileMetaData} from "./AppWriteUtil.ts";
 import type {FileMetaData} from "./types/FileTypes.ts";
 
+const width: string = '70vw';
+
 const UnsupportedPreview = () => {
 	return <div>Preview not supported</div>
 }
@@ -16,8 +18,12 @@ const ImagePreview = ({url} : {url: string}) => {
 
 	return (
 		<img src={url}
-		     alt="Image preview"
-		     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+		     alt='Image preview'
+		     style={{
+			     maxWidth: width,
+			     objectFit: 'contain',
+			     display: 'block',
+		     }}
 			 onError={() => setError(true)}/>
 	);
 };
@@ -37,21 +43,21 @@ const VideoPreview = ({url} : {url: string}) => {
 		<video src={url}
 		       title="Preview"
 		       controls
-		       style={{width: '100%^', maxHeight: '100%', objectFit: 'cover'}}
+		       style={{maxWidth: width, objectFit: 'cover'}}
 		       onError={() => setError(true)}
 		> Your browser does not support this video format.</video>
 	);
 };
 
-const FilePreviewInPlace = (metadata: FileMetaData) => {
-	const [previewShown, setPreviewShown] = useState(false);
+export const FilePreviewInPlace = ({metadata, isOpen, setIsOpen}
+	: {metadata: FileMetaData, isOpen: boolean, setIsOpen: (value: boolean) => void}
+) => {
 	console.log(metadata);
 
 	const isImage: boolean = metadata.mimeType.startsWith('image/');
 	const isVideo: boolean = metadata.mimeType.startsWith('video/');
 	const isPdf:   boolean = /^application\/pdf$/i.test(metadata.mimeType);
 
-	const togglePreview = () => setPreviewShown(!previewShown);
 	const overlayRoot = document.getElementById('overlay-root');
 
 	const previewContent =
@@ -66,10 +72,18 @@ const FilePreviewInPlace = (metadata: FileMetaData) => {
 			justifyContent: 'center',
 			alignItems: 'center',
 			zIndex: 9999,
-		}} onClick={() => {console.log("Button clicked");}}>
-			{previewShown && (
+		}} onClick={() => setIsOpen(false)}>
+			{isOpen && (
 				<div
 					onClick={(e) => e.stopPropagation()}
+					style={{
+						maxWidth: '90vw',
+						maxHeight: '90vh',
+						overflow: 'auto',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
 				>{
 					isImage ? <ImagePreview url={metadata.url}/> :
 						isVideo ? <VideoPreview url={metadata.url}/> :
@@ -80,14 +94,14 @@ const FilePreviewInPlace = (metadata: FileMetaData) => {
 
 	return (
 		<>
-			<button onClick={togglePreview}>{previewShown ? "Hide Preview" : "Show Preview"}</button>
-			{previewShown && overlayRoot && createPortal(previewContent, overlayRoot)}
+			{isOpen && overlayRoot && createPortal(previewContent, overlayRoot)}
 		</>
 	)
 };
 
 const FileItem = ({fileId} : {fileId: string}) => {
 	const [metadata, setMetadata] = useState<FileMetaData | null>(null);
+	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
 	useEffect(()=>{
 		const fetchMetaData = async () => {
@@ -108,9 +122,16 @@ const FileItem = ({fileId} : {fileId: string}) => {
 	if (!metadata) return <div>Loading...</div>
 
 	return (
-		<div>
+		<div style={{
+			display: 'flex',
+			gap: '1rem',
+			justifyContent: 'space-between',
+		}}>
 			<p>{metadata.name}</p>
-			<FilePreviewInPlace {...metadata} />
+			<button onClick={() => {setIsPreviewOpen(true)}}>Open Preview</button>
+			{isPreviewOpen &&
+				<FilePreviewInPlace metadata={metadata} isOpen={isPreviewOpen} setIsOpen={setIsPreviewOpen} />
+			}
 		</div>
 	)
 };
