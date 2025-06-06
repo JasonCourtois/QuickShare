@@ -13,6 +13,5 @@ createRoot(document.getElementById('root')!).render(
 			<FileItem fileId={gamble_file_id}/>
 			<Uploader/>
 		</div>
-		{/* overlay div here */}
 	</StrictMode>,
 )
