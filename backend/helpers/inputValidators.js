@@ -12,8 +12,12 @@ const isInvalidString = (input) => {
 }
 
 // Specific input validators
-const isInvalidId = (id) => {
+const isInvalidSessionId = (id) => {
     return !id || typeof(id) !== 'string' || id.length !== 5;
+}
+
+const isInvalidFileId = (id) => {
+    return !id || typeof(id) !== 'string' || id.length !== 20;
 }
 
 // Used for filenames and cdn_url inputs
@@ -21,4 +25,4 @@ const isInvalidPath = (name) => {
     return !name || typeof(name) !== 'string' || name.length === 0;
 }
 
-module.exports = { isInvalidArray, isInvalidNumber, isInvalidString, isInvalidId, isInvalidPath };
+module.exports = { isInvalidArray, isInvalidNumber, isInvalidString, isInvalidSessionId, isInvalidPath, isInvalidFileId };
