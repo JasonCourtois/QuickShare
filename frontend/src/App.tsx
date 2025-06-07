@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import HomePage, {Test} from "./HomePage.tsx";
-import RoomPage from "./types/RoomPage.tsx";
+import RoomPage from "./RoomPage.tsx";
 
 const App = () => {
 	return (

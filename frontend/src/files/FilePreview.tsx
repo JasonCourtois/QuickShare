@@ -1,7 +1,8 @@
 import {useState, useEffect} from 'react';
 import {createPortal} from 'react-dom';
-import {getFileMetaData} from "./AppWriteUtil.ts";
-import type {FileMetaData} from "./types/FileTypes.ts";
+import {getFileMetaData} from "../AppWriteUtil.ts";
+import type {FileMetaData} from "../types/FileTypes.ts";
+import styles from "./FilePreview.module.css";
 
 const width: string = '70vw';
 
@@ -49,30 +50,22 @@ const VideoPreview = ({url} : {url: string}) => {
 	);
 };
 
-export const FilePreviewInPlace = ({metadata, isOpen, setIsOpen}
+export const FilePreview = ({metadata, isOpen, setIsOpen}
 	: {metadata: FileMetaData, isOpen: boolean, setIsOpen: (value: boolean) => void}
 ) => {
-	console.log(metadata);
-
 	const isImage: boolean = metadata.mimeType.startsWith('image/');
 	const isVideo: boolean = metadata.mimeType.startsWith('video/');
 	const isPdf:   boolean = /^application\/pdf$/i.test(metadata.mimeType);
 
 	const overlayRoot = document.getElementById('overlay-root');
 
-	const previewContent =
-		<div style={{
-			position: 'fixed',
-			top: 0,
-			left: 0,
-			width: '100vw',
-			height: '100vh',
-			backgroundColor: 'rgba(0,0,0,0.6)',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			zIndex: 9999,
-		}} onClick={() => setIsOpen(false)}>
+	const previewOverlay =
+		<div className={styles['preview-overlay']} onClick={() => setIsOpen(false)}>
+			<button
+				className={styles['close-preview-button']}
+				onClick={() => setIsOpen(false)}
+				aria-label="Close Preview"
+			> × </button>
 			{isOpen && (
 				<div
 					onClick={(e) => e.stopPropagation()}
@@ -86,15 +79,15 @@ export const FilePreviewInPlace = ({metadata, isOpen, setIsOpen}
 					}}
 				>{
 					isImage ? <ImagePreview url={metadata.url}/> :
-						isVideo ? <VideoPreview url={metadata.url}/> :
-							isPdf   ? <PdfPreview   url={metadata.url}/> : <UnsupportedPreview/>
+					isVideo ? <VideoPreview url={metadata.url}/> :
+					isPdf   ? <PdfPreview   url={metadata.url}/> : <UnsupportedPreview/>
 				}</div>
 			)}
 		</div>
 
 	return (
 		<>
-			{isOpen && overlayRoot && createPortal(previewContent, overlayRoot)}
+			{isOpen && overlayRoot && createPortal(previewOverlay, overlayRoot)}
 		</>
 	)
 };
@@ -130,7 +123,7 @@ const FileItem = ({fileId} : {fileId: string}) => {
 			<p>{metadata.name}</p>
 			<button onClick={() => {setIsPreviewOpen(true)}}>Open Preview</button>
 			{isPreviewOpen &&
-				<FilePreviewInPlace metadata={metadata} isOpen={isPreviewOpen} setIsOpen={setIsPreviewOpen} />
+				<FilePreview metadata={metadata} isOpen={isPreviewOpen} setIsOpen={setIsPreviewOpen} />
 			}
 		</div>
 	)

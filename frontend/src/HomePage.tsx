@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 
 export const Test = () => {
-	return <div>Hello world!</div>;
+	return <div>Hello world from frontend!</div>;
 };
 
 const HomePage = () => {
