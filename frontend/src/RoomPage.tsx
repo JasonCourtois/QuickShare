@@ -2,12 +2,13 @@ import { useParams } from 'react-router-dom';
 import FileList from "./files/FileList.tsx";
 import FilePreview from "./files/FilePreview.tsx";
 import {gekko_file_id, gamble_file_id, getFileMetaData} from "./AppWriteUtil.ts";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import type {FileMetaData} from "./types/FileTypes.ts";
 
 const RoomPage = () => {
 	const {roomId} = useParams();
 
+	// Used for FilePreview
 	const [previewIndex, setPreviewIndex] = useState(0);
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 	// TODO: Get fileIds live from the
@@ -19,6 +20,7 @@ const RoomPage = () => {
 		fileMapRef.current = fileMap;
 	}, [fileMap]);
 
+	// Get FileMetaData for each ID
 	useEffect(() => {
 		let isCancelled: boolean = false;
 
@@ -54,10 +56,16 @@ const RoomPage = () => {
 		}
 	}, [fileIds]);
 
+	const setIndexWithBoundsChecking = useCallback((index: number) => {
+		if (index < 0) index = 0;
+		if (index >= fileIds.length) index = fileIds.length - 1;
+		setPreviewIndex(index);
+	}, [fileIds, setPreviewIndex]);
+
 	return (
 		<div>
 			<p>Room id: {roomId}</p>
-			<FilePreview files={Object.values(fileMap)} previewIndex={previewIndex}
+			<FilePreview files={Object.values(fileMap)} previewIndex={previewIndex} setPreviewIndex={setIndexWithBoundsChecking}
 			             isOpen={isPreviewOpen} setIsOpen={setIsPreviewOpen} />
 			<FileList fileMap={fileMap} setPreviewIndex={setPreviewIndex} setPreviewIsOpen={setIsPreviewOpen} />
 		</div>

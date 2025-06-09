@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {FileMetaData} from "../types/FileTypes.ts";
 import styles from "./FilePreview.module.css";
@@ -49,18 +49,21 @@ const VideoPreview = ({url} : {url: string}) => {
 	);
 };
 
-export const FilePreview = ({files, previewIndex, isOpen, setIsOpen}
-	: {files: FileMetaData[], previewIndex: number, isOpen: boolean, setIsOpen: (value: boolean) => void}
+export const FilePreview = ({files, previewIndex, setPreviewIndex, isOpen, setIsOpen}
+	: {files: FileMetaData[], previewIndex: number, setPreviewIndex: (index: number) => void
+	isOpen: boolean, setIsOpen: (value: boolean) => void}
 ) => {
-	if (files.length <= 0) {
-		setIsOpen(false);
-	} else if (previewIndex < 0) {
-		console.error(`Index given to file preview must be at least 0. Index given: ${previewIndex}`);
-		previewIndex = 0;
-	} else if (previewIndex >= files.length) {
-		console.error(`Index given to file preview must be less than ${files.length}. Index given: ${previewIndex}`);
-		previewIndex = files.length - 1;
-	}
+	useEffect(() => {
+		if (files.length <= 0) {
+			setIsOpen(false);
+		} else if (previewIndex < 0) {
+			console.error(`Index given to file preview must be at least 0. Index given: ${previewIndex}`);
+			setPreviewIndex(0);
+		} else if (previewIndex >= files.length) {
+			console.error(`Index given to file preview must be less than ${files.length}. Index given: ${previewIndex}`);
+			setPreviewIndex(files.length - 1);
+		}
+	}, [files, previewIndex, setPreviewIndex, setIsOpen]);
 
 	if (files.length <= 0) return null;
 
@@ -79,6 +82,7 @@ export const FilePreview = ({files, previewIndex, isOpen, setIsOpen}
 				onClick={() => setIsOpen(false)}
 				aria-label="Close Preview"
 			> × </button>
+			<button onClick={(e) => { e.stopPropagation(); setPreviewIndex(previewIndex - 1)}}>Previous Image</button>
 			{isOpen && (
 				<div
 					onClick={(e) => e.stopPropagation()}
@@ -96,6 +100,7 @@ export const FilePreview = ({files, previewIndex, isOpen, setIsOpen}
 					isPdf   ? <PdfPreview   url={file.url}/> : <UnsupportedPreview/>
 				}</div>
 			)}
+			<button onClick={(e) => { e.stopPropagation(); setPreviewIndex(previewIndex + 1)}}>Next Image</button>
 		</div>
 
 	return (
