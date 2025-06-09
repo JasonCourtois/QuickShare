@@ -1,6 +1,5 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import {createPortal} from 'react-dom';
-import {getFileMetaData} from "../AppWriteUtil.ts";
 import type {FileMetaData} from "../types/FileTypes.ts";
 import styles from "./FilePreview.module.css";
 
@@ -53,30 +52,19 @@ const VideoPreview = ({url} : {url: string}) => {
 export const FilePreview = ({files, previewIndex, isOpen, setIsOpen}
 	: {files: FileMetaData[], previewIndex: number, isOpen: boolean, setIsOpen: (value: boolean) => void}
 ) => {
-	const [currentIndex, setCurrentIndex] = useState(0);
-
 	if (files.length <= 0) {
-		console.error("Unable to load file preview with zero files");
 		setIsOpen(false);
-	}
-
-	if (previewIndex < 0) {
+	} else if (previewIndex < 0) {
 		console.error(`Index given to file preview must be at least 0. Index given: ${previewIndex}`);
 		previewIndex = 0;
-	}
-	if (previewIndex >= files.length) {
+	} else if (previewIndex >= files.length) {
 		console.error(`Index given to file preview must be less than ${files.length}. Index given: ${previewIndex}`);
 		previewIndex = files.length - 1;
 	}
 
-	useEffect(() => {
-		setCurrentIndex(previewIndex);
-	}, [previewIndex]);
-
 	if (files.length <= 0) return null;
 
-
-	const file: FileMetaData = files[currentIndex];
+	const file: FileMetaData = files[previewIndex];
 
 	const isImage: boolean = file.mimeType.startsWith('image/');
 	const isVideo: boolean = file.mimeType.startsWith('video/');
@@ -117,41 +105,4 @@ export const FilePreview = ({files, previewIndex, isOpen, setIsOpen}
 	)
 };
 
-const FileItem = ({fileId} : {fileId: string}) => {
-	const [metadata, setMetadata] = useState<FileMetaData | null>(null);
-	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-	useEffect(()=>{
-		const fetchMetaData = async () => {
-			try {
-				const data = await getFileMetaData(fileId);
-				setMetadata(data);
-			} catch (error) {
-				console.error(error);
-				setMetadata(null);
-			}
-		};
-		fetchMetaData().catch(error => {
-			console.error(error);
-			setMetadata(null);
-		});
-	}, [fileId]);
-
-	if (!metadata) return <div>Loading...</div>
-
-	return (
-		<div style={{
-			display: 'flex',
-			gap: '1rem',
-			justifyContent: 'space-between',
-		}}>
-			<p>{metadata.name}</p>
-			<button onClick={() => {setIsPreviewOpen(true)}}>Open Preview</button>
-			{isPreviewOpen &&
-				<FilePreview files={[metadata]} previewIndex={0} isOpen={isPreviewOpen} setIsOpen={setIsPreviewOpen} />
-			}
-		</div>
-	)
-};
-
-export default FileItem
+export default FilePreview
