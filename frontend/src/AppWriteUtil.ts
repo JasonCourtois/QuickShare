@@ -19,6 +19,7 @@ export const getFileMetaData = async (fileId: string): Promise<FileMetaData> => 
 	try {
 		const file = await storage.getFile(APPWRITE_BUCKET_ID, fileId);
 		return {
+			id: fileId,
 			name: file.name,
 			mimeType: file.mimeType,
 			url: storage.getFileView(APPWRITE_BUCKET_ID, fileId)

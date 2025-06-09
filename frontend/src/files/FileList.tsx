@@ -1,18 +1,42 @@
-import {gekko_file_id, gamble_file_id} from "../AppWriteUtil.ts";
+import {getFileMetaData} from "../AppWriteUtil.ts";
 import FileItem from "./FilePreview.tsx";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import type {FileMetaData} from "../types/FileTypes.ts";
 
-export const FileList = ({roomId} : {roomId: string}) => {
-	const [fileIds, setFileIds] = useState<string[]>([]);
+export const FileList = ({fileIds} : {fileIds: string[]}) => {
+	const [fileMap, setFileMap] = useState<Record<string, FileMetaData>>({});
+	const fileMapRef = useRef(fileMap);
+	
+	useEffect(() => {
+		fileMapRef.current = fileMap;
+	}, [fileMap]);
 
 	useEffect(() => {
-		const fetchFileIds = async () => {
-			// const files = await fetch(`/api/files/${roomId}`);
-			setFileIds([gekko_file_id, gamble_file_id]);
+		const updatedMap = {...fileMapRef.current};
+		const currentKeys: string[] = Object.keys(updatedMap);
+
+		const removeOldMetaData = () => {
+			const removedIds: string[] = Object.keys(currentKeys).filter((key) => (!fileIds.includes(key)))
+			for (const id in removedIds) {
+				delete updatedMap[id];
+			}
+		};
+
+		const addNewMetadata = async () => {
+			const newIds: string[] = fileIds.filter((id) => !currentKeys.includes(id));
+			for (const id of newIds) {
+				try {
+					updatedMap[id] = await getFileMetaData(id);
+				} catch (err) {
+					console.error(err);
+				}
+			}
 		}
 
-		fetchFileIds().catch(console.error);
-	}, [roomId]);
+		removeOldMetaData();
+		addNewMetadata().catch(console.error);
+		setFileMap(updatedMap);
+	}, [fileIds]);
 
 	return (
 		<div>
